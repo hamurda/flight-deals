@@ -13,7 +13,7 @@ class DataManager:
     def __init__(self):
         self.data = data
 
-    def pass_prices(self):
+    def pass_destionation_data(self):
         return self.data['prices']
 
     def update_row(self, item):
