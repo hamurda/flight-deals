@@ -17,8 +17,8 @@ for item in sheet_data:
 
 sheet_data = DataManager.pass_destionation_data(dm)
 for item in sheet_data:
-    cost = fs.get_cheapest_ticket(item['iataCode'])
-    if item["lowestPrice"] > cost:
-        item["lowestPrice"] = cost
-        dm.update_row(item)
+    cost = fs.cheapest_tickets(item['iataCode'])
+    # if item["lowestPrice"] > cost:
+    #     item["lowestPrice"] = cost
+    #     # dm.update_row(item)
     print(f"{item['city']}: {item['lowestPrice']}")

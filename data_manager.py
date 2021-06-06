@@ -26,4 +26,4 @@ class DataManager:
                 'id': item['id']}
         }
         put_response = requests.put(url=put_url, json=params_put)
-        put_response.raise_for_status()
+        print(put_response.text)

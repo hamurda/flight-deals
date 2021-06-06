@@ -1,6 +1,6 @@
 import os
 import requests
-from pprint import pprint
+from flight_data import FlightData
 import datetime as dt
 
 TEQUILA_ENDP = "https://tequila-api.kiwi.com/"
@@ -32,7 +32,7 @@ class FlightSearch:
         date_to = (dt.date.today() + dt.timedelta(days=180)).strftime("%d/%m/%Y")
         return date_from, date_to
 
-    def get_cheapest_ticket(self, city):
+    def cheapest_tickets(self, city):
         params_search = {
             "fly_from": "LON",
             "fly_to": city,
@@ -47,9 +47,21 @@ class FlightSearch:
         }
         response_teq_search = requests.get(url=TEQUILA_ENDP + TEQUILA_SEARCH, params=params_search, headers=HEADERS_TEQ)
         response_teq_search.raise_for_status()
-        data = response_teq_search.json()
-        return data["data"][0]['price']
 
-#
-# fs = FlightSearch()
-# print(fs.get_cheapest_ticket("TYO")['price'])
+        try:
+            data = response_teq_search.json()[0]
+        except IndexError:
+            print(f"No flights found for {city}")
+            return None
+
+        ticket_details = FlightData()
+        ticket_details.price = data["data"][0]['price']
+        ticket_details.departure_city = data["data"][0]['cityFrom']
+        ticket_details.departure_airport = data["data"][0]['flyFrom']
+        ticket_details.destination_city = data["data"][0]['cityTo']
+        ticket_details.destination_airport = data["data"][0]['flyTo']
+        ticket_details.out_date = data["route"][0]["local_departure"].split("T")[0],
+        ticket_details.return_date = data["route"][1]["local_departure"].split("T")[0]
+
+        print(f"{ticket_details.destination_city}: {ticket_details.price}AUD")
+        return ticket_details
