@@ -2,6 +2,7 @@ import os
 import requests
 from flight_data import FlightData
 import datetime as dt
+from pprint import pprint
 
 TEQUILA_ENDP = "https://tequila-api.kiwi.com/"
 TEQUILA_SEARCH = "v2/search"
@@ -42,7 +43,7 @@ class FlightSearch:
             "nights_in_dst_from": 7,
             "nights_in_dst_to": 28,
             "flight_type": "round",
-            "max_stopovers": 0,
+            "max_stopovers": 2,
             "limit": 1,
         }
         response_teq_search = requests.get(url=TEQUILA_ENDP + TEQUILA_SEARCH, params=params_search, headers=HEADERS_TEQ)
@@ -53,15 +54,21 @@ class FlightSearch:
         except IndexError:
             print(f"No flights found for {to_city}")
             return None
+        else:
+            ticket_details = FlightData()
+            ticket_details.price = data['price']
+            ticket_details.departure_city = data['cityFrom']
+            ticket_details.departure_airport = data['flyFrom']
+            ticket_details.destination_city = data['cityTo']
+            ticket_details.destination_airport = data['flyTo']
+            ticket_details.out_date = data["local_departure"].split("T")[0],
+            ticket_details.return_date = data["local_arrival"].split("T")[0],
+            ticket_details.stop_overs = (len(data['route'])/2)-1
+            ticket_details.via_city = data['route'][0]['cityTo']
 
-        ticket_details = FlightData()
-        ticket_details.price = data['price']
-        ticket_details.departure_city = data['cityFrom']
-        ticket_details.departure_airport = data['flyFrom']
-        ticket_details.destination_city = data['cityTo']
-        ticket_details.destination_airport = data['flyTo']
-        ticket_details.out_date = data["route"][0]["local_departure"].split("T")[0],
-        ticket_details.return_date = data["route"][1]["local_departure"].split("T")[0]
+            print(f"{ticket_details.destination_city}: {ticket_details.price}AUD")
+            return ticket_details
 
-        print(f"{ticket_details.destination_city}: {ticket_details.price}AUD")
-        return ticket_details
+
+fs = FlightSearch()
+fs.cheapest_tickets("LON", "DPS")
