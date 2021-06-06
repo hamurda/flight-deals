@@ -1,9 +1,8 @@
 from data_manager import DataManager
-from flight_data import FlightData
 from flight_search import FlightSearch
 from notification_manager import NotificationManager
 
-from pprint import pprint
+DEPARTURE_CITY_CODE = "LON"
 
 dm = DataManager()
 fs = FlightSearch()
@@ -17,8 +16,9 @@ for item in sheet_data:
 
 sheet_data = DataManager.pass_destionation_data(dm)
 for item in sheet_data:
-    cost = fs.cheapest_tickets(item['iataCode'])
-    # if item["lowestPrice"] > cost:
-    #     item["lowestPrice"] = cost
-    #     # dm.update_row(item)
-    print(f"{item['city']}: {item['lowestPrice']}")
+    ticket = fs.cheapest_tickets(DEPARTURE_CITY_CODE, item['iataCode'])
+    if ticket.price < item["lowestPrice"]:
+        text = f"Low price alert! Only {ticket.price}AUD to fly from {ticket.origin_city}-" \
+               f"{ticket.origin_airport} to {ticket.destination_city}" \
+               f"-{ticket.destination_airport}, from {ticket.out_date} to {ticket.return_date}."
+        NotificationManager.send_SMS(text)
